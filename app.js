@@ -19,5 +19,10 @@ app.get("/", (req, res) => {
   res.send(views.main(""));
 });
 
-const PORT = 3000;
-app.listen(PORT, () => console.log("listening to port 3000"));
+const start = async () => {
+  await db.sync({force: true});
+  const PORT = 3000;
+  app.listen(PORT, () => console.log("listening to port 3000"));
+};
+
+start();

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const views = require("../views");
 const { Page } = require("../models");
+const Sequelize = require("sequelize");
 
 router.get("/", (req, res) => {
   res.send(views.wikiPage("", ""));
@@ -10,16 +11,18 @@ router.get("/", (req, res) => {
 router.post("/", async (req, res, next) => {
   const title = req.body.title;
   const content = req.body.content;
-  // const status = req.body.status;
-  const getSlug = (title) => {
-    return title.replace(/\s+/g, "_").replace(/\W/g, "");
-  };
   try {
-    // const slug = await Page.beforeValidate(req.body, getSlug(req.body.title));
+    const getSlug = (title) => {
+      return title.replace(/\s+/g, "_").replace(/\W/g, "");
+    };
+
+    Page.beforeValidate(function (page, options) {
+      page.slug = getSlug(title);
+    });
+
     const page = await Page.create({
       title: title,
       content: content,
-      slug: slug,
     });
 
     res.redirect("/");

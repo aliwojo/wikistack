@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 const views = require("../views");
 const { Page } = require("../models");
-const Sequelize = require("sequelize");
 
-router.get("/", (req, res) => {
-  res.send(views.wikiPage("", ""));
+router.get("/", async (req, res) => {
+  const pages = await Page.findAll();
+  res.send(views.main(pages));
 });
 
 router.post("/", async (req, res, next) => {
@@ -25,7 +25,7 @@ router.post("/", async (req, res, next) => {
       content: content,
     });
 
-    res.redirect("/");
+    res.redirect(`/wiki/${page.slug}`);
   } catch (err) {
     next(err);
   }
@@ -33,6 +33,17 @@ router.post("/", async (req, res, next) => {
 
 router.get("/add", (req, res) => {
   res.send(views.addPage());
+});
+
+router.get("/:slug", async (req, res, next) => {
+  try {
+    console.log(req.params.slug);
+    const page = await Page.findAll({ where: { slug: req.params.slug } });
+    console.log(page);
+    res.send(views.wikiPage(page[0].dataValues, "author"));
+  } catch (err) {
+    next(err);
+  }
 });
 
 module.exports = router;
